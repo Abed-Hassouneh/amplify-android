@@ -112,6 +112,14 @@ subprojects {
     }
 }
 
+android {
+    compileOptions {
+        isCoreLibraryDesugaringEnabled = true
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+}
+
 @Suppress("ExpiredTargetSdkVersion")
 fun Project.configureAndroid() {
     if (hasProperty("signingKeyId")) {
