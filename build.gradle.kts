@@ -164,7 +164,7 @@ fun Project.configureAndroid() {
 
             tasks.withType<KotlinCompile>().configureEach {
                 kotlinOptions {
-                    jvmTarget = JavaVersion.VERSION_11.toString()
+                    jvmTarget = JavaVersion.VERSION_17.toString()
                 }
             }
 
