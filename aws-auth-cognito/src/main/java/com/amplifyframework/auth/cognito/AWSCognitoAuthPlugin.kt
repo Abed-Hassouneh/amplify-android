@@ -18,6 +18,7 @@ package com.amplifyframework.auth.cognito
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import androidx.annotation.NonNull
 import androidx.annotation.VisibleForTesting
 import com.amplifyframework.AmplifyException
 import com.amplifyframework.annotations.InternalAmplifyApi
@@ -65,6 +66,7 @@ import com.amplifyframework.auth.result.AuthUpdateAttributeResult
 import com.amplifyframework.core.Action
 import com.amplifyframework.core.Consumer
 import com.amplifyframework.core.configuration.AmplifyOutputsData
+import com.amplifyframework.statemachine.StateChangeListenerToken
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
@@ -191,9 +193,15 @@ class AWSCognitoAuthPlugin : AuthPlugin<AWSCognitoAuthService>() {
         )
     }
 
-//    override fun getAuthStateMachine(): AuthStateMachine {
-//        return realPlugin.getAuthStateMachine()
-//    }
+    override fun listenToAuthStateMachineEvents(onSuccess: Consumer<AuthSignUpResult>) {
+        val token = StateChangeListenerToken()
+
+        realPlugin.getAuthStateMachine().listen(token, {
+            print("AuthStateMachine event: listener $it")
+        }, {
+            print("AuthStateMachine event: onSubscribe")
+        })
+    }
 
     override fun signUp(
         username: String,
