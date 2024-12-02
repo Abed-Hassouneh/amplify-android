@@ -21,7 +21,7 @@ import com.amplifyframework.statemachine.StateMachineEvent
 import com.amplifyframework.statemachine.codegen.data.SignUpData
 import java.util.Date
 
-internal class SignUpEvent(
+class SignUpEvent(
     val eventType: EventType,
     override val time: Date? = null,
 ) : StateMachineEvent {

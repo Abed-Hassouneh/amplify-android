@@ -20,7 +20,7 @@ import com.amplifyframework.statemachine.StateMachineEvent
 import com.amplifyframework.statemachine.codegen.data.AmplifyCredential
 import java.util.Date
 
-internal class AuthEvent(val eventType: EventType, override val time: Date? = null) :
+class AuthEvent(val eventType: EventType, override val time: Date? = null) :
     StateMachineEvent {
     sealed class EventType {
         data class ConfigureAuth(val configuration: AuthConfiguration) : EventType()

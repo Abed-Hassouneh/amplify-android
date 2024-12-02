@@ -18,7 +18,7 @@ package com.amplifyframework.statemachine
 import java.util.Date
 import java.util.UUID
 
-internal interface StateMachineEvent {
+interface StateMachineEvent {
 
     /**
      * Unique event identifier

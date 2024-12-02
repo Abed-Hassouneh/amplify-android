@@ -20,7 +20,7 @@ import com.amplifyframework.statemachine.util.mask
 import kotlinx.serialization.Serializable
 
 @Serializable
-internal data class AuthChallenge(
+data class AuthChallenge(
     val challengeName: String,
     val username: String? = null,
     val session: String?,

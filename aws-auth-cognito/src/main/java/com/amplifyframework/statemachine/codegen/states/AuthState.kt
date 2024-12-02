@@ -23,7 +23,7 @@ import com.amplifyframework.statemachine.StateResolution
 import com.amplifyframework.statemachine.codegen.actions.AuthActions
 import com.amplifyframework.statemachine.codegen.events.AuthEvent
 
-internal sealed class AuthState : State {
+sealed class AuthState : State {
     data class NotConfigured(val id: String = "") : AuthState()
     data class ConfiguringAuth(val id: String = "") : AuthState()
     data class ConfiguringAuthentication(
@@ -88,13 +88,16 @@ internal sealed class AuthState : State {
                         ConfiguringAuth(),
                         listOf(authActions.initializeAuthConfigurationAction(authEvent))
                     )
+
                     else -> defaultResolution
                 }
+
                 is ConfiguringAuth -> when (authEvent) {
                     is AuthEvent.EventType.ConfigureAuthentication -> StateResolution(
                         ConfiguringAuthentication(AuthenticationState.NotConfigured()),
                         listOf(authActions.initializeAuthenticationConfigurationAction(authEvent))
                     )
+
                     is AuthEvent.EventType.ConfigureAuthorization -> StateResolution(
                         ConfiguringAuthorization(
                             AuthenticationState.NotConfigured(),
@@ -102,8 +105,10 @@ internal sealed class AuthState : State {
                         ),
                         listOf(authActions.initializeAuthorizationConfigurationAction(authEvent))
                     )
+
                     else -> defaultResolution
                 }
+
                 is ConfiguringAuthentication -> when (authEvent) {
                     is AuthEvent.EventType.ConfiguredAuthentication -> StateResolution(
                         ConfiguringAuthorization(
@@ -112,14 +117,18 @@ internal sealed class AuthState : State {
                         ),
                         listOf(authActions.initializeAuthorizationConfigurationAction(authEvent))
                     )
+
                     else -> defaultResolution
                 }
+
                 is ConfiguringAuthorization -> when (authEvent) {
                     is AuthEvent.EventType.ConfiguredAuthorization -> StateResolution(
                         Configured(oldState.authNState, oldState.authZState, oldState.authSignUpState)
                     )
+
                     else -> defaultResolution
                 }
+
                 else -> defaultResolution
             }
         }

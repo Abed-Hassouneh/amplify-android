@@ -19,7 +19,7 @@ import com.amplifyframework.statemachine.codegen.data.SignInMethod
 import com.amplifyframework.statemachine.codegen.data.SignInTOTPSetupData
 import java.util.Date
 
-internal class SetupTOTPEvent(val eventType: EventType, override val time: Date? = null) :
+class SetupTOTPEvent(val eventType: EventType, override val time: Date? = null) :
     StateMachineEvent {
 
     sealed class EventType {

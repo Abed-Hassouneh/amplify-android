@@ -46,11 +46,19 @@ import com.amplifyframework.auth.result.AuthSignInResult
 import com.amplifyframework.auth.result.AuthSignOutResult
 import com.amplifyframework.auth.result.AuthSignUpResult
 import com.amplifyframework.auth.result.AuthUpdateAttributeResult
+import com.amplifyframework.statemachine.codegen.states.AuthState
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 internal class KotlinAuthFacadeInternal(private val delegate: RealAWSCognitoAuthPlugin) {
+
+    suspend fun getAuthStateMachine(): AuthStateMachine {
+        return  suspendCoroutine {
+            continuation ->
+            delegate.getAuthStateMachine()
+        }
+    }
 
     suspend fun signUp(
         username: String,

@@ -24,7 +24,7 @@ import com.amplifyframework.statemachine.codegen.actions.UserAuthSignInActions
 import com.amplifyframework.statemachine.codegen.data.SignInData
 import com.amplifyframework.statemachine.codegen.events.SignInEvent
 
-internal sealed class SignInState : State {
+sealed class SignInState : State {
     data class NotStarted(val id: String = "") : SignInState()
     data class SigningInWithSRP(override var srpSignInState: SRPSignInState?) : SignInState()
     data class SigningInWithHostedUI(override var hostedUISignInState: HostedUISignInState?) : SignInState()

@@ -15,6 +15,6 @@
 
 package com.amplifyframework.statemachine
 
-internal interface EventDispatcher {
+interface EventDispatcher {
     fun send(event: StateMachineEvent)
 }

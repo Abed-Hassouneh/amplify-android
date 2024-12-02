@@ -21,7 +21,7 @@ import com.amplifyframework.statemachine.codegen.data.AuthChallenge
 import com.amplifyframework.statemachine.codegen.data.SignInMethod
 import java.util.Date
 
-internal class SRPEvent(val eventType: EventType, override val time: Date? = null) :
+class SRPEvent(val eventType: EventType, override val time: Date? = null) :
     StateMachineEvent {
     sealed class EventType {
         data class InitiateSRP(

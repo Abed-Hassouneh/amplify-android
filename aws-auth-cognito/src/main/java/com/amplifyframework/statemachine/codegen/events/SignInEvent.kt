@@ -29,7 +29,7 @@ import com.amplifyframework.statemachine.codegen.data.WebAuthnSignInContext
 import java.lang.ref.WeakReference
 import java.util.Date
 
-internal class SignInEvent(val eventType: EventType, override val time: Date? = null) : StateMachineEvent {
+class SignInEvent(val eventType: EventType, override val time: Date? = null) : StateMachineEvent {
     sealed class EventType {
         data class InitiateSignInWithSRP(
             val username: String,

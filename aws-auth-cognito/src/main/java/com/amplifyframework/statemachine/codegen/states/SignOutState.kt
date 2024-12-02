@@ -28,7 +28,7 @@ import com.amplifyframework.statemachine.codegen.data.SignedOutData
 import com.amplifyframework.statemachine.codegen.events.AuthEvent
 import com.amplifyframework.statemachine.codegen.events.SignOutEvent
 
-internal sealed class SignOutState : State {
+sealed class SignOutState : State {
     data class NotStarted(val id: String = "") : SignOutState()
     data class SigningOutHostedUI(
         val signedInData: SignedInData,

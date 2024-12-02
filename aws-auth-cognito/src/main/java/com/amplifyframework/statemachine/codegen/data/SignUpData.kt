@@ -19,7 +19,7 @@ import com.amplifyframework.statemachine.util.mask
 import kotlinx.serialization.Serializable
 
 @Serializable
-internal data class SignUpData(
+data class SignUpData(
     val username: String,
     val validationData: Map<String, String>? = null,
     val clientMetadata: Map<String, String>? = null,

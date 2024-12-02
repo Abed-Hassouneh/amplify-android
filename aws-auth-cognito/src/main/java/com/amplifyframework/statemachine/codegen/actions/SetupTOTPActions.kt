@@ -17,7 +17,7 @@ package com.amplifyframework.statemachine.codegen.actions
 import com.amplifyframework.statemachine.Action
 import com.amplifyframework.statemachine.codegen.events.SetupTOTPEvent
 
-internal interface SetupTOTPActions {
+interface SetupTOTPActions {
     fun initiateTOTPSetup(eventType: SetupTOTPEvent.EventType.SetupTOTP): Action
     fun verifyChallengeAnswer(
         eventType: SetupTOTPEvent.EventType.VerifyChallengeAnswer

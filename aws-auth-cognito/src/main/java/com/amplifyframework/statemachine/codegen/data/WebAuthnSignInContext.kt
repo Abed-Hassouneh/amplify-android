@@ -23,7 +23,7 @@ import java.lang.ref.WeakReference
 /**
  * Class that accumulates the information needed to sign in via WebAuthn. The data may be built up over time.
  */
-internal data class WebAuthnSignInContext(
+data class WebAuthnSignInContext(
     val username: String,
     val callingActivity: WeakReference<Activity>,
     val session: String?,

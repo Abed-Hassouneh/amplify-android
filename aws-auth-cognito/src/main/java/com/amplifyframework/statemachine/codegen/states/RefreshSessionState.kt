@@ -25,7 +25,7 @@ import com.amplifyframework.statemachine.codegen.data.SignedInData
 import com.amplifyframework.statemachine.codegen.events.FetchAuthSessionEvent
 import com.amplifyframework.statemachine.codegen.events.RefreshSessionEvent
 
-internal sealed class RefreshSessionState : State {
+sealed class RefreshSessionState : State {
     data class NotStarted(val id: String = "") : RefreshSessionState()
     data class RefreshingUserPoolTokens(val signedInData: SignedInData) : RefreshSessionState()
     data class RefreshingAuthSession(

@@ -53,6 +53,9 @@ import java.util.Map;
  * Specifies the behavior for the Auth category.
  */
 public interface AuthCategoryBehavior {
+
+//    AuthStateMachine getAuthStateMachine();
+
     /**
      * Creates a new user account with the specified username and password.
      * Can also pass in user attributes to associate with the user through

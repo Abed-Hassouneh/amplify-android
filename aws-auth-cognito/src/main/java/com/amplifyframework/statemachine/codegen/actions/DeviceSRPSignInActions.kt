@@ -18,7 +18,7 @@ package com.amplifyframework.statemachine.codegen.actions
 import com.amplifyframework.statemachine.Action
 import com.amplifyframework.statemachine.codegen.events.DeviceSRPSignInEvent
 
-internal interface DeviceSRPSignInActions {
+interface DeviceSRPSignInActions {
     fun respondDeviceSRP(event: DeviceSRPSignInEvent.EventType.RespondDeviceSRPChallenge): Action
     fun respondDevicePasswordVerifier(event: DeviceSRPSignInEvent.EventType.RespondDevicePasswordVerifier): Action
 }

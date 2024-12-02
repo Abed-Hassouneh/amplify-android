@@ -191,6 +191,10 @@ class AWSCognitoAuthPlugin : AuthPlugin<AWSCognitoAuthService>() {
         )
     }
 
+//    override fun getAuthStateMachine(): AuthStateMachine {
+//        return realPlugin.getAuthStateMachine()
+//    }
+
     override fun signUp(
         username: String,
         password: String?,

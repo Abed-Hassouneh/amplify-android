@@ -23,7 +23,7 @@ import com.amplifyframework.statemachine.codegen.data.SignInMethod
 import com.amplifyframework.statemachine.codegen.data.SignInTOTPSetupData
 import com.amplifyframework.statemachine.codegen.events.SetupTOTPEvent
 
-internal sealed class SetupTOTPState : State {
+sealed class SetupTOTPState : State {
     data class NotStarted(val id: String = "") : SetupTOTPState()
     data class SetupTOTP(val id: String = "") : SetupTOTPState()
     data class WaitingForAnswer(

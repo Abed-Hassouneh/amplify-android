@@ -54,7 +54,7 @@ import com.amplifyframework.statemachine.codegen.states.SignOutState
 import com.amplifyframework.statemachine.codegen.states.SignUpState
 import com.amplifyframework.statemachine.codegen.states.WebAuthnSignInState
 
-internal class AuthStateMachine(
+ class AuthStateMachine(
     resolver: StateMachineResolver<AuthState>,
     environment: Environment,
     initialState: AuthState? = null

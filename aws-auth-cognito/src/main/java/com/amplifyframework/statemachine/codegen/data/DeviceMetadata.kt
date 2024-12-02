@@ -19,7 +19,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-internal sealed class DeviceMetadata {
+sealed class DeviceMetadata {
     @Serializable
     @SerialName("metadata")
     data class Metadata(

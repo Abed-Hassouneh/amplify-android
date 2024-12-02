@@ -20,7 +20,7 @@ import com.amplifyframework.statemachine.codegen.data.WebAuthnSignInContext
 import com.amplifyframework.statemachine.codegen.events.SignInEvent.EventType
 import java.util.Date
 
-internal class WebAuthnEvent(val eventType: EventType, override val time: Date? = null) : StateMachineEvent {
+class WebAuthnEvent(val eventType: EventType, override val time: Date? = null) : StateMachineEvent {
 
     sealed class EventType {
         data class FetchCredentialOptions(val signInContext: WebAuthnSignInContext) : EventType()

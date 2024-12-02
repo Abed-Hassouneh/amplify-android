@@ -24,7 +24,7 @@ import com.amplifyframework.statemachine.codegen.actions.SRPActions
 import com.amplifyframework.statemachine.codegen.data.SignInMethod
 import com.amplifyframework.statemachine.codegen.events.SRPEvent
 
-internal sealed class SRPSignInState : State {
+sealed class SRPSignInState : State {
     data class NotStarted(val id: String = "") : SRPSignInState()
     data class InitiatingSRPA(val signInMethod: SignInMethod) : SRPSignInState()
     data class RespondingPasswordVerifier(val id: String = "") : SRPSignInState()

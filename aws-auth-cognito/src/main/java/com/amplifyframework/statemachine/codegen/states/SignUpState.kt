@@ -25,7 +25,7 @@ import com.amplifyframework.statemachine.codegen.actions.SignUpActions
 import com.amplifyframework.statemachine.codegen.data.SignUpData
 import com.amplifyframework.statemachine.codegen.events.SignUpEvent
 
-internal sealed class SignUpState : State {
+sealed class SignUpState : State {
     data class NotStarted(val id: String = "") : SignUpState()
     data class InitiatingSignUp(val signUpData: SignUpData) : SignUpState()
     data class AwaitingUserConfirmation(val signUpData: SignUpData, val signUpResult: AuthSignUpResult) : SignUpState()

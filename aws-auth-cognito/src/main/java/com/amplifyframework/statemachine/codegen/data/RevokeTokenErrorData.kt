@@ -15,4 +15,4 @@
 
 package com.amplifyframework.statemachine.codegen.data
 
-internal data class RevokeTokenErrorData(val refreshToken: String?, val error: Exception)
+data class RevokeTokenErrorData(val refreshToken: String?, val error: Exception)

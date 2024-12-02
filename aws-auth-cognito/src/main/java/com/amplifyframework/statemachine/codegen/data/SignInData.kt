@@ -20,7 +20,7 @@ import com.amplifyframework.auth.AuthFactorType
 import com.amplifyframework.auth.cognito.options.AuthFlowType
 import java.lang.ref.WeakReference
 
-internal sealed class SignInData {
+sealed class SignInData {
 
     data class SRPSignInData(
         val username: String?,

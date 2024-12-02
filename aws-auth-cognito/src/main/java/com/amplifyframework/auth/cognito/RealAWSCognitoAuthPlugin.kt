@@ -198,7 +198,7 @@ internal class RealAWSCognitoAuthPlugin(
         configureAuthStates()
     }
 
-    fun getAuthStateMachine() = authStateMachine
+    fun getAuthStateMachine() : AuthStateMachine = authStateMachine
 
     fun escapeHatch() = authEnvironment.cognitoAuthService
 

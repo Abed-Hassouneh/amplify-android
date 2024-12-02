@@ -18,7 +18,7 @@ package com.amplifyframework.statemachine.codegen.actions
 import com.amplifyframework.statemachine.Action
 import com.amplifyframework.statemachine.codegen.events.WebAuthnEvent
 
-internal interface WebAuthnSignInActions {
+interface WebAuthnSignInActions {
     fun fetchCredentialOptions(event: WebAuthnEvent.EventType.FetchCredentialOptions): Action
     fun assertCredentials(event: WebAuthnEvent.EventType.AssertCredentialOptions): Action
     fun verifyCredentialAndSignIn(event: WebAuthnEvent.EventType.VerifyCredentialsAndSignIn): Action

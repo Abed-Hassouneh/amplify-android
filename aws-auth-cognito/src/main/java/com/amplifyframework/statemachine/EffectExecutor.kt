@@ -15,6 +15,6 @@
 
 package com.amplifyframework.statemachine
 
-internal interface EffectExecutor {
+interface EffectExecutor {
     fun execute(actions: List<Action>, eventDispatcher: EventDispatcher, environment: Environment)
 }

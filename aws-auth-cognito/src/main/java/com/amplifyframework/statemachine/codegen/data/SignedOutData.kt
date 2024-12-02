@@ -19,7 +19,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 
 @Serializable
-internal data class SignedOutData(
+data class SignedOutData(
     val lastKnownUsername: String? = null,
     @Transient // TODO: Define Serializer for Errors
     val hostedUIErrorData: HostedUIErrorData? = null,

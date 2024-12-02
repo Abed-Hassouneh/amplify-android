@@ -30,7 +30,7 @@ import kotlinx.coroutines.withContext
 
 internal typealias OnSubscribedCallback = () -> Unit
 
-internal class StateChangeListenerToken private constructor(val uuid: UUID) {
+class StateChangeListenerToken private constructor(val uuid: UUID) {
     constructor() : this(UUID.randomUUID())
     override fun equals(other: Any?) = other is StateChangeListenerToken && other.uuid == uuid
     override fun hashCode() = uuid.hashCode()
@@ -50,7 +50,7 @@ internal class StateChangeListenerToken private constructor(val uuid: UUID) {
  * @param concurrentQueue event queue or thread pool for effect executor and subscription callback
  * @param initialState starting state of the system (resolver default state will be used if omitted)
  */
-internal open class StateMachine<StateType : State, EnvironmentType : Environment>(
+open class StateMachine<StateType : State, EnvironmentType : Environment>(
     resolver: StateMachineResolver<StateType>,
     val environment: EnvironmentType,
     private val dispatcherQueue: CoroutineDispatcher = Dispatchers.Default,

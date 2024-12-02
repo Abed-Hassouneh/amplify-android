@@ -25,7 +25,7 @@ import com.amplifyframework.statemachine.codegen.data.WebAuthnSignInContext
 import com.amplifyframework.statemachine.codegen.events.SignInEvent
 import com.amplifyframework.statemachine.codegen.events.WebAuthnEvent
 
-internal sealed class WebAuthnSignInState : State {
+sealed class WebAuthnSignInState : State {
     data class NotStarted(val id: String = "") : WebAuthnSignInState()
     data class FetchingCredentialOptions(val id: String = "") : WebAuthnSignInState()
     data class AssertingCredentials(val id: String = "") : WebAuthnSignInState()

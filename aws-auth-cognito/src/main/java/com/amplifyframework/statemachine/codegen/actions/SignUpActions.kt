@@ -18,7 +18,7 @@ package com.amplifyframework.statemachine.codegen.actions
 import com.amplifyframework.statemachine.Action
 import com.amplifyframework.statemachine.codegen.events.SignUpEvent
 
-internal interface SignUpActions {
+interface SignUpActions {
     fun initiateSignUpAction(event: SignUpEvent.EventType.InitiateSignUp): Action
     fun confirmSignUpAction(event: SignUpEvent.EventType.ConfirmSignUp): Action
 }

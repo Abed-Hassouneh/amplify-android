@@ -18,7 +18,7 @@ package com.amplifyframework.statemachine.codegen.events
 import com.amplifyframework.statemachine.StateMachineEvent
 import java.util.Date
 
-internal class DeviceSRPSignInEvent(val eventType: EventType, override val time: Date? = null) : StateMachineEvent {
+class DeviceSRPSignInEvent(val eventType: EventType, override val time: Date? = null) : StateMachineEvent {
     sealed class EventType {
         data class RespondDeviceSRPChallenge(val username: String, val metadata: Map<String, String>) : EventType()
         data class RespondDevicePasswordVerifier(

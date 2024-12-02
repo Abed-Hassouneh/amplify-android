@@ -20,7 +20,7 @@ import com.amplifyframework.statemachine.Action
 import com.amplifyframework.statemachine.codegen.data.AuthChallenge
 import com.amplifyframework.statemachine.codegen.data.SignInMethod
 
-internal interface SignInChallengeActions {
+interface SignInChallengeActions {
     fun verifyChallengeAuthAction(
         answer: String,
         metadata: Map<String, String>,
