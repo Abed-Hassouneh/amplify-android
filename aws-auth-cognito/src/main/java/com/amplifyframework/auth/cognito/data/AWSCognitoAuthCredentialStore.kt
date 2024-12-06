@@ -42,10 +42,16 @@ internal class AWSCognitoAuthCredentialStore(
         keyValueRepoFactory.create(context, awsKeyValueStoreIdentifier, isPersistenceEnabled)
 
     //region Save Credentials
-    override fun saveCredential(credential: AmplifyCredential) = keyValue.put(
-        generateKey(Key_Session),
-        serializeCredential(credential)
-    )
+    override fun saveCredential(credential: AmplifyCredential) {
+        var sessionKey: String? = null
+        if (credential is AmplifyCredential.UserPool) {
+            sessionKey = generateKeyWithPrefix(credential.signedInData.userId + "_", Key_Session)
+        }
+        keyValue.put(
+            sessionKey ?: generateKey(Key_Session),
+            serializeCredential(credential)
+        )
+    }
 
     override fun saveDeviceMetadata(username: String, deviceMetadata: DeviceMetadata) = keyValue.put(
         generateKey("$username.$Key_DeviceMetadata"),
@@ -59,7 +65,11 @@ internal class AWSCognitoAuthCredentialStore(
     //endregion
 
     //region Retrieve Credentials
-    override fun retrieveCredential(): AmplifyCredential = deserializeCredential(keyValue.get(generateKey(Key_Session)))
+    override fun retrieveCredential(userId: String?): AmplifyCredential {
+        return userId?.let {
+            deserializeCredential(keyValue.get(generateKeyWithPrefix(it + "_", Key_Session)))
+        } ?: deserializeCredential(keyValue.get(generateKey(Key_Session)))
+    }
 
     override fun retrieveDeviceMetadata(username: String): DeviceMetadata = deserializeMetadata(
         keyValue.get(generateKey("$username.$Key_DeviceMetadata"))
@@ -71,7 +81,11 @@ internal class AWSCognitoAuthCredentialStore(
     //endregion
 
     //region Delete Credentials
-    override fun deleteCredential() = keyValue.remove(generateKey(Key_Session))
+    override fun deleteCredential(userId: String?) {
+        userId?.let {
+            keyValue.remove(generateKeyWithPrefix(it + "_", Key_Session))
+        } ?: keyValue.remove(generateKey(Key_Session))
+    }
 
     override fun deleteDeviceKeyCredential(username: String) = keyValue.remove(
         generateKey("$username.$Key_DeviceMetadata")
@@ -92,6 +106,8 @@ internal class AWSCognitoAuthCredentialStore(
 
         return prefix.plus(".$keySuffix")
     }
+
+    private fun generateKeyWithPrefix(prefix: String, keySuffix: String) = prefix + generateKey(keySuffix)
 
     //region Deserialization
     private fun deserializeCredential(encodedCredential: String?): AmplifyCredential {

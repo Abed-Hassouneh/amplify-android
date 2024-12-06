@@ -101,7 +101,7 @@ internal class AWSCognitoLegacyCredentialStore(
     }
 
     @Synchronized
-    override fun retrieveCredential(): AmplifyCredential {
+    override fun retrieveCredential(userId: String?): AmplifyCredential {
         val signedInData = retrieveSignedInData()
         val awsCredentials = retrieveAWSCredentials()
         val identityId = retrieveIdentityId()
@@ -113,6 +113,7 @@ internal class AWSCognitoLegacyCredentialStore(
                     signedInData != null -> {
                         AmplifyCredential.UserAndIdentityPool(signedInData, identityId, awsCredentials)
                     }
+
                     federateToIdentityPoolToken != null -> {
                         AmplifyCredential.IdentityPoolFederated(
                             federateToIdentityPoolToken,
@@ -120,10 +121,17 @@ internal class AWSCognitoLegacyCredentialStore(
                             awsCredentials
                         )
                     }
-                    else -> { AmplifyCredential.IdentityPool(identityId, awsCredentials) }
+
+                    else -> {
+                        AmplifyCredential.IdentityPool(identityId, awsCredentials)
+                    }
                 }
             }
-            signedInData != null -> { AmplifyCredential.UserPool(signedInData) }
+
+            signedInData != null -> {
+                AmplifyCredential.UserPool(signedInData)
+            }
+
             else -> AmplifyCredential.Empty
         }
     }
@@ -135,7 +143,7 @@ internal class AWSCognitoLegacyCredentialStore(
         return AmplifyCredential.ASFDevice(deviceId)
     }
 
-    override fun deleteCredential() {
+    override fun deleteCredential(userId: String?) {
         deleteAWSCredentials()
         deleteIdentityId()
         deleteCognitoUserPoolTokens()

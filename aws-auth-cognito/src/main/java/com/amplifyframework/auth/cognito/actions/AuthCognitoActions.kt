@@ -28,7 +28,7 @@ internal object AuthCognitoActions : AuthActions {
     override fun initializeAuthConfigurationAction(event: AuthEvent.EventType.ConfigureAuth) =
         Action<AuthEnvironment>("InitAuthConfig") { id, dispatcher ->
             logger.verbose("$id Starting execution")
-            val storedCredentials = credentialStoreClient.loadCredentials(CredentialType.Amplify)
+            val storedCredentials = credentialStoreClient.loadCredentials(CredentialType.Amplify(event.userId))
             val evt = configuration.userPool?.run {
                 AuthEvent(AuthEvent.EventType.ConfigureAuthentication(configuration, storedCredentials))
             } ?: AuthEvent(AuthEvent.EventType.ConfigureAuthorization(configuration, storedCredentials))

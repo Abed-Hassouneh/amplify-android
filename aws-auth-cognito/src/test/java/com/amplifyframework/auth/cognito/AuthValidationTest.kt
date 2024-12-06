@@ -131,7 +131,8 @@ class AuthValidationTest {
         configuration = configuration,
         authEnvironment = environment,
         authStateMachine = stateMachine,
-        logger = logger
+        logger = logger,
+        userId = userId
     )
 
     private val mainThreadSurrogate = newSingleThreadContext("Main thread")

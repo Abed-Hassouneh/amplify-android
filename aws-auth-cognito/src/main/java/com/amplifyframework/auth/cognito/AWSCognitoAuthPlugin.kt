@@ -130,10 +130,22 @@ class AWSCognitoAuthPlugin : AuthPlugin<AWSCognitoAuthService>() {
         realPlugin.initialize()
     }
 
+    override fun configure(pluginConfiguration: JSONObject, userId: String?, context: Context) {
+        try {
+            configure(AuthConfiguration.fromJson(pluginConfiguration), userId, context)
+        } catch (exception: Exception) {
+            throw ConfigurationException(
+                "Failed to configure AWSCognitoAuthPlugin.",
+                "Make sure your amplifyconfiguration.json is valid.",
+                exception
+            )
+        }
+    }
+
     @Throws(AmplifyException::class)
     override fun configure(pluginConfiguration: JSONObject, context: Context) {
         try {
-            configure(AuthConfiguration.fromJson(pluginConfiguration), context)
+            configure(AuthConfiguration.fromJson(pluginConfiguration), null, context)
         } catch (exception: Exception) {
             throw ConfigurationException(
                 "Failed to configure AWSCognitoAuthPlugin.",
@@ -146,7 +158,7 @@ class AWSCognitoAuthPlugin : AuthPlugin<AWSCognitoAuthService>() {
     @InternalAmplifyApi
     override fun configure(amplifyOutputs: AmplifyOutputsData, context: Context) {
         try {
-            configure(AuthConfiguration.from(amplifyOutputs), context)
+            configure(AuthConfiguration.from(amplifyOutputs), null, context)
         } catch (exception: Exception) {
             throw ConfigurationException(
                 "Failed to configure AWSCognitoAuthPlugin.",
@@ -156,7 +168,7 @@ class AWSCognitoAuthPlugin : AuthPlugin<AWSCognitoAuthService>() {
         }
     }
 
-    private fun configure(configuration: AuthConfiguration, context: Context) {
+    private fun configure(configuration: AuthConfiguration, userId: String?, context: Context) {
         val credentialStoreClient = CredentialStoreClient(configuration, context, logger)
         val authEnvironment = AuthEnvironment(
             context,
@@ -173,7 +185,8 @@ class AWSCognitoAuthPlugin : AuthPlugin<AWSCognitoAuthService>() {
             configuration,
             authEnvironment,
             authStateMachine,
-            logger
+            logger,
+            userId
         )
 
         useCaseFactory = AuthUseCaseFactory(realPlugin, authEnvironment, authStateMachine)
@@ -286,6 +299,9 @@ class AWSCognitoAuthPlugin : AuthPlugin<AWSCognitoAuthService>() {
     override fun handleWebUISignInResponse(intent: Intent?) {
         queueFacade.handleWebUISignInResponse(intent)
     }
+
+    override fun fetchAuthSession(userId: String, onSuccess: Consumer<AuthSession>, onError: Consumer<AuthException>) =
+        enqueue(onSuccess, onError) { queueFacade.fetchAuthSession(userId) }
 
     override fun fetchAuthSession(
         options: AuthFetchSessionOptions,

@@ -26,7 +26,7 @@ internal class AuthorizationEvent(val eventType: EventType, override val time: D
     sealed class EventType {
         object Configure : EventType()
         object FetchAuthSession : EventType()
-        object FetchUnAuthSession : EventType()
+        data class FetchUnAuthSession(val userId: String?) : EventType()
         data class Fetched(val identityId: String, val awsCredentials: AWSCredentials) : EventType()
         data class RefreshSession(val amplifyCredential: AmplifyCredential) : EventType()
         data class Refreshed(val amplifyCredential: AmplifyCredential) : EventType()

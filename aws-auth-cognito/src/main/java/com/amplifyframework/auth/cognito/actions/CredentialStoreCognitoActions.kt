@@ -16,6 +16,7 @@
 package com.amplifyframework.auth.cognito.actions
 
 import com.amplifyframework.auth.cognito.CredentialStoreEnvironment
+import com.amplifyframework.auth.cognito.getCognitoSession
 import com.amplifyframework.statemachine.Action
 import com.amplifyframework.statemachine.codegen.actions.CredentialStoreActions
 import com.amplifyframework.statemachine.codegen.data.AmplifyCredential
@@ -53,7 +54,7 @@ internal object CredentialStoreCognitoActions : CredentialStoreActions {
                     legacyCredentialStore.deleteASFDevice()
                 }
 
-                CredentialStoreEvent(CredentialStoreEvent.EventType.LoadCredentialStore(CredentialType.Amplify))
+                CredentialStoreEvent(CredentialStoreEvent.EventType.LoadCredentialStore(CredentialType.Amplify(credentials.getCognitoSession().userSubResult.value)))
             } catch (error: CredentialStoreError) {
                 CredentialStoreEvent(CredentialStoreEvent.EventType.ThrowError(error))
             }
@@ -66,7 +67,7 @@ internal object CredentialStoreCognitoActions : CredentialStoreActions {
             logger.verbose("$id Starting execution")
             val evt = try {
                 when (credentialType) {
-                    CredentialType.Amplify -> credentialStore.deleteCredential()
+                    is CredentialType.Amplify -> credentialStore.deleteCredential()
                     is CredentialType.Device -> credentialStore.deleteDeviceKeyCredential(credentialType.username)
                     CredentialType.ASF -> credentialStore.deleteASFDevice()
                 }
@@ -83,7 +84,7 @@ internal object CredentialStoreCognitoActions : CredentialStoreActions {
             logger.verbose("$id Starting execution")
             val evt = try {
                 val credentials: AmplifyCredential = when (credentialType) {
-                    CredentialType.Amplify -> credentialStore.retrieveCredential()
+                    is CredentialType.Amplify -> credentialStore.retrieveCredential(credentialType.userId)
                     is CredentialType.Device -> {
                         AmplifyCredential.DeviceData(credentialStore.retrieveDeviceMetadata(credentialType.username))
                     }
@@ -102,7 +103,7 @@ internal object CredentialStoreCognitoActions : CredentialStoreActions {
             logger.verbose("$id Starting execution")
             val evt = try {
                 when (credentialType) {
-                    CredentialType.Amplify -> credentialStore.saveCredential(credentials)
+                    is CredentialType.Amplify -> credentialStore.saveCredential(credentials)
                     is CredentialType.Device -> {
                         val deviceData = credentials as? AmplifyCredential.DeviceMetaDataTypeCredential
                         deviceData?.let {

@@ -17,6 +17,7 @@ package com.amplifyframework.auth;
 
 import android.app.Activity;
 import android.content.Intent;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -211,6 +212,15 @@ public final class AuthCategory extends Category<AuthPlugin<?>> implements AuthC
 
     @Override
     public void fetchAuthSession(
+            @NonNull String userId,
+            @NonNull Consumer<AuthSession> onSuccess,
+            @NonNull Consumer<AuthException> onError
+    ) {
+        getSelectedPlugin().fetchAuthSession(userId, onSuccess, onError);
+    }
+
+    @Override
+    public void fetchAuthSession(
             @NonNull Consumer<AuthSession> onSuccess,
             @NonNull Consumer<AuthException> onError
     ) {
@@ -386,7 +396,8 @@ public final class AuthCategory extends Category<AuthPlugin<?>> implements AuthC
         getSelectedPlugin().signOut(onComplete);
     }
 
-    @Override public void signOut(
+    @Override
+    public void signOut(
             @NonNull AuthSignOutOptions options,
             @NonNull Consumer<AuthSignOutResult> onComplete
     ) {

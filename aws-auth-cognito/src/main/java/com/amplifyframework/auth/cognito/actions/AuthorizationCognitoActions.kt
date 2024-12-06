@@ -17,6 +17,7 @@ package com.amplifyframework.auth.cognito.actions
 
 import com.amplifyframework.AmplifyException
 import com.amplifyframework.auth.cognito.AuthEnvironment
+import com.amplifyframework.auth.cognito.getCognitoSession
 import com.amplifyframework.auth.exceptions.ConfigurationException
 import com.amplifyframework.statemachine.Action
 import com.amplifyframework.statemachine.codegen.actions.AuthorizationActions
@@ -154,7 +155,7 @@ internal object AuthorizationCognitoActions : AuthorizationActions {
         Action<AuthEnvironment>("PersistCredentials") { id, dispatcher ->
             logger.verbose("$id Starting execution")
             val evt = try {
-                credentialStoreClient.storeCredentials(CredentialType.Amplify, amplifyCredential)
+                credentialStoreClient.storeCredentials(CredentialType.Amplify(amplifyCredential.getCognitoSession().userSubResult.value), amplifyCredential)
                 AuthEvent(AuthEvent.EventType.ReceivedCachedCredentials(amplifyCredential))
             } catch (e: Exception) {
                 AuthEvent(AuthEvent.EventType.CachedCredentialsFailed)
