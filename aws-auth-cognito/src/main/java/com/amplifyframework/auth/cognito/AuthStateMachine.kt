@@ -34,7 +34,6 @@ import com.amplifyframework.auth.cognito.actions.UserAuthSignInCognitoActions
 import com.amplifyframework.auth.cognito.actions.WebAuthnSignInCognitoActions
 import com.amplifyframework.auth.exceptions.InvalidStateException
 import com.amplifyframework.statemachine.Environment
-import com.amplifyframework.statemachine.StateMachine
 import com.amplifyframework.statemachine.StateMachineResolver
 import com.amplifyframework.statemachine.codegen.states.AuthState
 import com.amplifyframework.statemachine.codegen.states.AuthenticationState
@@ -58,7 +57,8 @@ internal class AuthStateMachine(
     resolver: StateMachineResolver<AuthState>,
     environment: Environment,
     initialState: AuthState? = null
-) : StateMachine<AuthState, Environment>(resolver, environment, initialState = initialState) {
+) : StateMachineForAuth<AuthState, Environment>(resolver, environment, initialState = initialState) {
+
     constructor(environment: Environment, initialState: AuthState? = null) : this(
         AuthState.Resolver(
             AuthenticationState.Resolver(
