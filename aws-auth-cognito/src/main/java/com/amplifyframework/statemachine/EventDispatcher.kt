@@ -17,5 +17,5 @@ package com.amplifyframework.statemachine
 
 internal interface EventDispatcher {
     fun send(event: StateMachineEvent) {}
-    fun send(event: StateMachineEvent, userName: String)
+    fun send(event: StateMachineEvent, userName: String) {}
 }
