@@ -1,30 +1,8 @@
-/*
- * Copyright 2022 Amazon.com, Inc. or its affiliates. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License").
- * You may not use this file except in compliance with the License.
- * A copy of the License is located at
- *
- *  http://aws.amazon.com/apache2.0
- *
- * or in the "license" file accompanying this file. This file is distributed
- * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- * express or implied. See the License for the specific language governing
- * permissions and limitations under the License.
- */
+package com.amplifyframework.statemachine
 
-package com.amplifyframework.auth.cognito
-
-import aws.smithy.kotlin.runtime.http.response.dumpResponse
-import com.amplifyframework.statemachine.Action
-import com.amplifyframework.statemachine.ConcurrentEffectExecutor
-import com.amplifyframework.statemachine.EffectExecutor
-import com.amplifyframework.statemachine.Environment
-import com.amplifyframework.statemachine.EventDispatcher
-import com.amplifyframework.statemachine.State
-import com.amplifyframework.statemachine.StateMachineEvent
-import com.amplifyframework.statemachine.StateMachineResolver
-import java.util.UUID
+import com.amplifyframework.auth.cognito.AuthEnvironment
+import com.amplifyframework.statemachine.codegen.data.AuthStateRepo
+import com.amplifyframework.statemachine.codegen.states.AuthState
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -32,20 +10,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.withContext
-
-internal typealias OnSubscribedCallback = () -> Unit
-
-internal class StateChangeListenerToken private constructor(val uuid: UUID) {
-    constructor() : this(UUID.randomUUID())
-
-    override fun equals(other: Any?) = other is StateChangeListenerToken && other.uuid == uuid
-    override fun hashCode() = uuid.hashCode()
-}
 
 /**
  * Model, mutate and process effects of a system as a finite state automaton. It consists of:
@@ -58,44 +26,43 @@ internal class StateChangeListenerToken private constructor(val uuid: UUID) {
  * @param resolver responsible for mutating state based on incoming events
  * @param environment holds system specific environment info accessible to Effects/Actions
  * @param executor responsible for invoking effects
- * @param concurrentQueue event queue or thread pool for effect executor and subscription callback
  * @param initialState starting state of the system (resolver default state will be used if omitted)
  */
-internal open class StateMachineForAuth<StateType : State, EnvironmentType : Environment>(
-    resolver: StateMachineResolver<StateType>,
-    val environment: EnvironmentType,
+internal open class StateMachineForAuth(
+    resolver: StateMachineResolver<AuthState>,
+    val environment: AuthEnvironment,
     private val dispatcherQueue: CoroutineDispatcher = Dispatchers.Default,
     private val executor: EffectExecutor = ConcurrentEffectExecutor(dispatcherQueue),
-    private val initialState: StateType? = null
+    private val initialState: AuthState? = null
 ) : EventDispatcher {
 
     private val resolver = resolver.eraseToAnyResolver()
 
+    private val authStateRepo: AuthStateRepo = AuthStateRepo.getInstance(environment.context)
+
     // The current state of the state machine. Consumers can collect or read the current state from the read-only StateFlow
-    private val _state: Map<String, MutableStateFlow<StateType>> = emptyMap()
-    fun getAuthStateFlow(userName: String): StateFlow<StateType> {
-        return _state[userName]?.asStateFlow() ?: MutableStateFlow(initialState ?: resolver.defaultState)
+    private val _state = MutableStateFlow(initialState ?: resolver.defaultState)
+    val state = _state.asStateFlow()
+
+    private fun getAuthStateForUser(username: String?): AuthState {
+        if (username.isNullOrEmpty()) {
+            return resolver.defaultState
+        }
+        return authStateRepo.get(username) ?: resolver.defaultState
     }
 
-    // Private accessor for the current state. Although this is thread-safe to access/mutate, we still want to limit
-    // read/write to the single-threaded stateMachineContext for consistency
-    private var currentState: Map<String, StateType> = emptyMap()
-
-    fun getCurrentAuthState(userName: String): StateType {
-        return currentState.getOrDefault(userName, initialState ?: resolver.defaultState)
-    }
-
-    fun setCurrentAuthState(userName: String, value: StateType) {
-        _state[userName]?.value = value
+    private fun setAuthState(userName: String, value: AuthState) {
+        authStateRepo.put(userName, value)
+        _state.value = value
     }
 
     // Manage consistency of internal state machine state and limits invocation of listeners to a minimum of one at a time.
     @OptIn(ExperimentalCoroutinesApi::class, DelicateCoroutinesApi::class)
     protected val stateMachineContext = SupervisorJob() + newSingleThreadContext("StateMachineContext")
-    protected val stateMachineScope = CoroutineScope(stateMachineContext)
+    private val stateMachineScope = CoroutineScope(stateMachineContext)
 
     // weak wrapper ??
-    private val subscribers: MutableMap<StateChangeListenerToken, (StateType) -> Unit> = mutableMapOf()
+    private val subscribers: MutableMap<StateChangeListenerToken, (AuthState) -> Unit> = mutableMapOf()
 
     // atomic value ??
     private val pendingCancellations: MutableSet<StateChangeListenerToken> = mutableSetOf()
@@ -108,9 +75,24 @@ internal open class StateMachineForAuth<StateType : State, EnvironmentType : Env
      * @return token that can be used to unsubscribe the listener
      */
     @Deprecated("Collect from state flow instead")
-    fun listen(userName: String, token: StateChangeListenerToken, listener: (StateType) -> Unit, onSubscribe: OnSubscribedCallback?) {
+    fun listen(
+        username: String,
+        token: StateChangeListenerToken,
+        listener: (AuthState) -> Unit,
+        onSubscribe: OnSubscribedCallback?
+    ) {
         stateMachineScope.launch {
-            addSubscription(userName, token, listener, onSubscribe)
+            addSubscription(username, token, listener, onSubscribe)
+        }
+    }
+
+    fun listen(
+        token: StateChangeListenerToken,
+        listener: (AuthState) -> Unit,
+        onSubscribe: OnSubscribedCallback?
+    ) {
+        stateMachineScope.launch {
+            addSubscription(token = token, listener = listener, onSubscribe = onSubscribe)
         }
     }
 
@@ -128,20 +110,26 @@ internal open class StateMachineForAuth<StateType : State, EnvironmentType : Env
     }
 
     /**
-     * Invoke `completion` with the current state
+     * Invoke `completion` with the current state for the given user [username].
      * @param completion callback to invoke with the current state
      */
-    @Deprecated("Use suspending version instead")
-    fun getCurrentState(userName: String, completion: (StateType) -> Unit) {
+    fun getCurrentState(username: String, completion: (AuthState) -> Unit) {
         stateMachineScope.launch {
-            completion(currentState.getOrDefault(userName, initialState ?: resolver.defaultState))
+            completion(getAuthStateForUser(username))
         }
     }
 
     /**
-     * Get the current state, dispatching to the state machine context for the read.
+     * Invoke `completion` with the state for the last active user (if exists).
      */
-    suspend fun getCurrentState() = withContext(stateMachineContext) { currentState }
+    fun getCurrentState(completion: (AuthState) -> Unit) {
+        stateMachineScope.launch {
+            completion(authStateRepo.activeState() ?: resolver.defaultState)
+        }
+    }
+
+    suspend fun getCurrentState() =
+        withContext(stateMachineContext) { authStateRepo.activeState() ?: resolver.defaultState }
 
     /**
      * Register a listener.
@@ -150,13 +138,13 @@ internal open class StateMachineForAuth<StateType : State, EnvironmentType : Env
      * @param onSubscribe callback to invoke when subscription is complete
      */
     private fun addSubscription(
-        userName: String,
+        username: String? = null,
         token: StateChangeListenerToken,
-        listener: (StateType) -> Unit,
+        listener: (AuthState) -> Unit,
         onSubscribe: OnSubscribedCallback?
     ) {
         if (pendingCancellations.contains(token)) return
-        val currentState = this.currentState.getOrDefault(userName, initialState ?: resolver.defaultState)
+        val currentState = getAuthStateForUser(username)
         subscribers[token] = listener
         onSubscribe?.invoke()
         stateMachineScope.launch(dispatcherQueue) {
@@ -178,15 +166,14 @@ internal open class StateMachineForAuth<StateType : State, EnvironmentType : Env
      * @param event event to send to the system
      */
     override fun send(event: StateMachineEvent) {
-        TODO("No need to implement")
-//        stateMachineScope.launch {
-//            process(userName.orEmpty(), event)
-//        }
+        stateMachineScope.launch {
+            process(authStateRepo.activeStateKey().orEmpty(), event)
+        }
     }
 
-    override fun send(event: StateMachineEvent, userName: String) {
+    override fun send(event: StateMachineEvent, username: String) {
         stateMachineScope.launch {
-            process(userName, event)
+            process(username, event)
         }
     }
 
@@ -197,8 +184,8 @@ internal open class StateMachineForAuth<StateType : State, EnvironmentType : Env
      * @return true if the subscriber was notified, false if the token was null or a cancellation was pending
      */
     private fun notifySubscribers(
-        subscriber: Map.Entry<StateChangeListenerToken, (StateType) -> Unit>,
-        newState: StateType
+        subscriber: Map.Entry<StateChangeListenerToken, (AuthState) -> Unit>,
+        newState: AuthState
     ): Boolean {
         val token = subscriber.key
         if (pendingCancellations.contains(token)) return false
@@ -213,10 +200,14 @@ internal open class StateMachineForAuth<StateType : State, EnvironmentType : Env
      * the state machine will execute any effects from the event resolution process.
      * @param event event to apply on current state for resolution
      */
-    private fun process(userName: String, event: StateMachineEvent) {
-        val resolution = resolver.resolve(currentState.getOrDefault(userName, initialState ?: resolver.defaultState), event)
+    private fun process(username: String, event: StateMachineEvent) {
+        if (username.isEmpty()) {
+            return
+        }
+        val currentState = getAuthStateForUser(username)
+        val resolution = resolver.resolve(currentState, event)
         if (currentState != resolution.newState) {
-            setCurrentAuthState(userName, resolution.newState)
+            setAuthState(username, resolution.newState)
             val subscribersToRemove = subscribers.filter { !notifySubscribers(it, resolution.newState) }
             subscribersToRemove.forEach { subscribers.remove(it.key) }
         }

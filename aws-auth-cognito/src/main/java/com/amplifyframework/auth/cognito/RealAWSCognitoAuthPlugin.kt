@@ -574,7 +574,7 @@ internal class RealAWSCognitoAuthPlugin(
         onSuccess: Consumer<AuthSignInResult>,
         onError: Consumer<AuthException>
     ) {
-        authStateMachine.getCurrentAuthState(username.orEmpty()) { authState ->
+        authStateMachine.getCurrentState(username.orEmpty()) { authState ->
             val signInOptions = options as? AWSCognitoAuthSignInOptions ?: AWSCognitoAuthSignInOptions.builder()
                 .authFlowType(configuration.authFlowType)
                 .build()
