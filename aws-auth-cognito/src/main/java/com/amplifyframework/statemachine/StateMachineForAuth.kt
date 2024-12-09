@@ -92,7 +92,12 @@ internal open class StateMachineForAuth(
         onSubscribe: OnSubscribedCallback?
     ) {
         stateMachineScope.launch {
-            addSubscription(token = token, listener = listener, onSubscribe = onSubscribe)
+            addSubscription(
+                username = authStateRepo.activeStateKey(),
+                token = token,
+                listener = listener,
+                onSubscribe = onSubscribe
+            )
         }
     }
 
@@ -201,9 +206,6 @@ internal open class StateMachineForAuth(
      * @param event event to apply on current state for resolution
      */
     private fun process(username: String, event: StateMachineEvent) {
-        if (username.isEmpty()) {
-            return
-        }
         val currentState = getAuthStateForUser(username)
         val resolution = resolver.resolve(currentState, event)
         if (currentState != resolution.newState) {

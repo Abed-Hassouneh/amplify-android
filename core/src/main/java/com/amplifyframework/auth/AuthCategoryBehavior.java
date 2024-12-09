@@ -253,6 +253,7 @@ public interface AuthCategoryBehavior {
      * @param onError Error callback
      */
     void fetchAuthSession(
+            @NonNull String username,
             @NonNull String userId,
             @NonNull Consumer<AuthSession> onSuccess,
             @NonNull Consumer<AuthException> onError);

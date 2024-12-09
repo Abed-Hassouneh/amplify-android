@@ -300,8 +300,8 @@ class AWSCognitoAuthPlugin : AuthPlugin<AWSCognitoAuthService>() {
         queueFacade.handleWebUISignInResponse(intent)
     }
 
-    override fun fetchAuthSession(userId: String, onSuccess: Consumer<AuthSession>, onError: Consumer<AuthException>) =
-        enqueue(onSuccess, onError) { queueFacade.fetchAuthSession(userId) }
+    override fun fetchAuthSession(username: String, userId: String, onSuccess: Consumer<AuthSession>, onError: Consumer<AuthException>) =
+        enqueue(onSuccess, onError) { queueFacade.fetchAuthSession(username, userId) }
 
     override fun fetchAuthSession(
         options: AuthFetchSessionOptions,

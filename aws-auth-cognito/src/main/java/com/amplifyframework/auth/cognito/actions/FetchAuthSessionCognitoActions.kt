@@ -104,7 +104,7 @@ internal object FetchAuthSessionCognitoActions : FetchAuthSessionActions {
                 AuthorizationEvent(AuthorizationEvent.EventType.ThrowError(e))
             }
             logger.verbose("$id Sending event ${evt.type}")
-            dispatcher.send(evt)
+            dispatcher.send(evt, signedInData.username)
         }
 
     override fun refreshAuthSessionAction(logins: LoginsMapProvider) =
@@ -188,6 +188,10 @@ internal object FetchAuthSessionCognitoActions : FetchAuthSessionActions {
             logger.verbose("$id Starting execution")
             val evt = AuthorizationEvent(AuthorizationEvent.EventType.Refreshed(amplifyCredential))
             logger.verbose("$id Sending event ${evt.type}")
-            dispatcher.send(evt)
+            val username = when (amplifyCredential) {
+                is AmplifyCredential.UserPoolTypeCredential -> amplifyCredential.signedInData.username
+                else -> ""
+            }
+            dispatcher.send(evt, username)
         }
 }
