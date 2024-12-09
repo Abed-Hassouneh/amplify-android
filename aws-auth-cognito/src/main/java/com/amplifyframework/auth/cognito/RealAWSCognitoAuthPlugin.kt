@@ -242,7 +242,7 @@ internal class RealAWSCognitoAuthPlugin(
         onSuccess: Consumer<AuthSignUpResult>,
         onError: Consumer<AuthException>
     ) {
-        authStateMachine.getCurrentState { authState ->
+        authStateMachine.getCurrentState(username) { authState ->
             when (authState.authNState) {
                 is AuthenticationState.NotConfigured -> onError.accept(
                     InvalidUserPoolConfigurationException()
@@ -308,7 +308,7 @@ internal class RealAWSCognitoAuthPlugin(
         onSuccess: Consumer<AuthSignUpResult>,
         onError: Consumer<AuthException>
     ) {
-        authStateMachine.getCurrentState { authState ->
+        authStateMachine.getCurrentState(username) { authState ->
             when (authState.authNState) {
                 is AuthenticationState.NotConfigured -> onError.accept(
                     InvalidUserPoolConfigurationException()
@@ -331,6 +331,7 @@ internal class RealAWSCognitoAuthPlugin(
     ) {
         val token = StateChangeListenerToken()
         authStateMachine.listen(
+            username,
             token,
             { authState ->
                 when (val signUpState = authState.authSignUpState) {
@@ -429,6 +430,7 @@ internal class RealAWSCognitoAuthPlugin(
     ) {
         val token = StateChangeListenerToken()
         authStateMachine.listen(
+            signUpData.username,
             token,
             { authState ->
                 val authNState = authState.authNState
@@ -494,7 +496,7 @@ internal class RealAWSCognitoAuthPlugin(
         onSuccess: Consumer<AuthCodeDeliveryDetails>,
         onError: Consumer<AuthException>
     ) {
-        authStateMachine.getCurrentState { authState ->
+        authStateMachine.getCurrentState(username, { authState ->
             when (authState.authNState) {
                 is AuthenticationState.NotConfigured -> onError.accept(
                     InvalidUserPoolConfigurationException()
@@ -506,7 +508,7 @@ internal class RealAWSCognitoAuthPlugin(
 
                 else -> onError.accept(InvalidStateException())
             }
-        }
+        })
     }
 
     private suspend fun _resendSignUpCode(
@@ -592,6 +594,7 @@ internal class RealAWSCognitoAuthPlugin(
                 is AuthenticationState.SigningIn -> {
                     val token = StateChangeListenerToken()
                     authStateMachine.listen(
+                        username.orEmpty(),
                         token,
                         { authState ->
                             when (authState.authNState) {
@@ -623,6 +626,7 @@ internal class RealAWSCognitoAuthPlugin(
     ) {
         val token = StateChangeListenerToken()
         authStateMachine.listen(
+            username.orEmpty(),
             token,
             { authState ->
                 val authNState = authState.authNState
