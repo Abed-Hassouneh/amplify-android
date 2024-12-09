@@ -46,13 +46,15 @@ internal open class StateMachineForAuth(
 
     private fun getAuthStateForUser(username: String?): AuthState {
         if (username.isNullOrEmpty()) {
-            return resolver.defaultState
+            return _state.value
         }
-        return authStateRepo.get(username) ?: resolver.defaultState
+        return authStateRepo.get(username) ?: _state.value
     }
 
     private fun setAuthState(userName: String, value: AuthState) {
-        authStateRepo.put(userName, value)
+        if (userName.isNotEmpty()) {
+            authStateRepo.put(userName, value)
+        }
         _state.value = value
     }
 
