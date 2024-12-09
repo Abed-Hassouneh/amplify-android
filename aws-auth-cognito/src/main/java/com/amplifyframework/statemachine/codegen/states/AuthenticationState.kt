@@ -30,11 +30,13 @@ import com.amplifyframework.statemachine.codegen.data.SignedOutData
 import com.amplifyframework.statemachine.codegen.events.AuthenticationEvent
 import com.amplifyframework.statemachine.codegen.events.AuthorizationEvent
 import com.amplifyframework.statemachine.codegen.events.SignOutEvent
+import kotlinx.serialization.Serializable
 
 internal sealed class AuthenticationState : State {
     data class NotConfigured(val id: String = "") : AuthenticationState()
     data class Configured(val id: String = "") : AuthenticationState()
     data class SigningIn(var signInState: SignInState = SignInState.NotStarted()) : AuthenticationState()
+    @Serializable
     data class SignedIn(val signedInData: SignedInData, val deviceMetadata: DeviceMetadata) : AuthenticationState()
     data class SigningOut(var signOutState: SignOutState = SignOutState.NotStarted()) : AuthenticationState()
     data class SignedOut(val signedOutData: SignedOutData) : AuthenticationState()

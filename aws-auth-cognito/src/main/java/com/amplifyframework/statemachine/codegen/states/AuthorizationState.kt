@@ -34,6 +34,7 @@ import com.amplifyframework.statemachine.codegen.events.AuthenticationEvent
 import com.amplifyframework.statemachine.codegen.events.AuthorizationEvent
 import com.amplifyframework.statemachine.codegen.events.DeleteUserEvent
 import com.amplifyframework.statemachine.codegen.events.SignOutEvent
+import kotlinx.serialization.Serializable
 
 internal sealed class AuthorizationState : State {
     data class NotConfigured(val id: String = "") : AuthorizationState()
@@ -56,6 +57,7 @@ internal sealed class AuthorizationState : State {
         val amplifyCredential: AmplifyCredential
     ) : AuthorizationState()
     data class StoringCredentials(val amplifyCredential: AmplifyCredential) : AuthorizationState()
+    @Serializable
     data class SessionEstablished(val amplifyCredential: AmplifyCredential) : AuthorizationState()
     data class FederatingToIdentityPool(
         val federatedToken: FederatedToken,

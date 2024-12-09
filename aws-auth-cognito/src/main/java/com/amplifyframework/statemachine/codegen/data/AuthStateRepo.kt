@@ -6,6 +6,7 @@ import com.amplifyframework.statemachine.codegen.states.AuthState
 import com.amplifyframework.statemachine.codegen.states.AuthenticationState
 import com.amplifyframework.statemachine.codegen.states.AuthorizationState
 import com.amplifyframework.statemachine.util.LifoMap
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -34,8 +35,16 @@ internal class AuthStateRepo private constructor(context: Context) {
      * @param value The authentication state to store.
      */
     fun put(key: String, value: AuthState) {
-        if (value is AuthState.Configured && value.authNState is AuthenticationState.SignedIn && value.authZState is AuthorizationState.SessionEstablished) {
-            encryptedStore.put(key, serializeState(value))
+        if (value.hasValidSession) {
+            encryptedStore.put(
+                key,
+                serializeAuthNAndZState(
+                    AuthNAndAuthZ(
+                        value.authNState as AuthenticationState.SignedIn,
+                        value.authZState as AuthorizationState.SessionEstablished
+                    )
+                )
+            )
         }
         authStateMap.push(key, value)
     }
@@ -49,9 +58,13 @@ internal class AuthStateRepo private constructor(context: Context) {
     fun get(key: String): AuthState? {
         return if (authStateMap.containsKey(key)) {
             authStateMap.get(key)
-        } else encryptedStore.get(key)?.let { deserializeState(it) }.also {
-            // If the state is found in the encrypted store, push it to the in-memory map.
-            it?.let { authStateMap.push(key, it) }
+        } else {
+            deserializeAuthNAndZState(encryptedStore.get(key))?.let {
+                AuthState.Configured(it.authNState, it.authZState, null)
+            }.also {
+                // If the state is found in the encrypted store, push it to the in-memory map.
+                it?.let { authStateMap.push(key, it) }
+            }
         }
     }
 
@@ -83,15 +96,13 @@ internal class AuthStateRepo private constructor(context: Context) {
         return authStateMap.peekKey()
     }
 
-    // Serializes the given authentication state to a JSON string.
-    private fun serializeState(authState: AuthState): String {
+    private fun serializeAuthNAndZState(authState: AuthNAndAuthZ): String {
         return Json.encodeToString(authState)
     }
 
-    // Deserializes the given JSON string to an authentication state.
-    private fun deserializeState(encodedState: String?): AuthState? {
+    private fun deserializeAuthNAndZState(encodedState: String?): AuthNAndAuthZ? {
         return runCatching {
-            encodedState?.let { Json.decodeFromString(it) as AuthState }
+            encodedState?.let { Json.decodeFromString(it) as AuthNAndAuthZ }
         }.getOrNull()
     }
 
@@ -117,3 +128,14 @@ internal class AuthStateRepo private constructor(context: Context) {
         }
     }
 }
+
+@Serializable
+private data class AuthNAndAuthZ(
+    val authNState: AuthenticationState.SignedIn,
+    val authZState: AuthorizationState.SessionEstablished
+)
+
+private val AuthState.hasValidSession: Boolean
+    get() = this is AuthState.Configured &&
+            this.authNState is AuthenticationState.SignedIn &&
+            this.authZState is AuthorizationState.SessionEstablished
