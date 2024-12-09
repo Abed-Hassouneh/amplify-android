@@ -3,6 +3,8 @@ package com.amplifyframework.statemachine.codegen.data
 import android.content.Context
 import com.amplifyframework.core.store.EncryptedKeyValueRepository
 import com.amplifyframework.statemachine.codegen.states.AuthState
+import com.amplifyframework.statemachine.codegen.states.AuthenticationState
+import com.amplifyframework.statemachine.codegen.states.AuthorizationState
 import com.amplifyframework.statemachine.util.LifoMap
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -32,7 +34,9 @@ internal class AuthStateRepo private constructor(context: Context) {
      * @param value The authentication state to store.
      */
     fun put(key: String, value: AuthState) {
-        encryptedStore.put(key, serializeState(value))
+        if (value is AuthState.Configured && value.authNState is AuthenticationState.SignedIn && value.authZState is AuthorizationState.SessionEstablished) {
+            encryptedStore.put(key, serializeState(value))
+        }
         authStateMap.push(key, value)
     }
 
