@@ -98,7 +98,7 @@ internal object AuthorizationCognitoActions : AuthorizationActions {
                 }
             }
             logger.verbose("$id Sending event ${evt.type}")
-            dispatcher.send(evt)//, signedInData.username)
+            dispatcher.send(evt,  signedInData.email)
         }
 
     override fun initiateRefreshSessionAction(amplifyCredential: AmplifyCredential) =
@@ -176,9 +176,9 @@ internal object AuthorizationCognitoActions : AuthorizationActions {
             }
             logger.verbose("$id Sending event ${evt.type}")
             val username = when (amplifyCredential) {
-                is AmplifyCredential.UserPoolTypeCredential -> amplifyCredential.signedInData.username
+                is AmplifyCredential.UserPoolTypeCredential -> amplifyCredential.signedInData.email//username
                 else -> ""
             }
-            dispatcher.send(evt)//, username)
+            dispatcher.send(evt, username)
         }
 }

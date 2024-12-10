@@ -62,7 +62,8 @@ internal object HostedUICognitoActions : HostedUIActions {
                     username,
                     Date(),
                     SignInMethod.HostedUI(browserPackage),
-                    token
+                    token,
+                    "fetchHostedUISignInToken"
                 )
                 val tokenFetchedEvent = HostedUIEvent(HostedUIEvent.EventType.TokenFetched)
                 logger.verbose("$id Sending event ${tokenFetchedEvent.type}")

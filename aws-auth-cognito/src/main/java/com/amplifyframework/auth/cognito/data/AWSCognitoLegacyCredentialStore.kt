@@ -233,7 +233,8 @@ internal class AWSCognitoLegacyCredentialStore(
             tokenUsername,
             Date(0),
             signInMethod,
-            cognitoUserPoolTokens
+            cognitoUserPoolTokens,
+            "legacy"
         )
     }
 

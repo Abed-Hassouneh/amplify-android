@@ -45,6 +45,7 @@ import com.amplifyframework.statemachine.codegen.events.WebAuthnEvent
 internal object SignInCognitoActions : SignInActions {
     private const val KEY_SECRET_HASH = "SECRET_HASH"
     private const val KEY_USERNAME = "USERNAME"
+    private const val USER_EMAIL = "USER_EMAIL"
 
     override fun startSRPAuthAction(event: SignInEvent.EventType.InitiateSignInWithSRP) =
         Action<AuthEnvironment>("StartSRPAuth") { id, dispatcher ->
@@ -225,6 +226,7 @@ internal object SignInCognitoActions : SignInActions {
                 if (response != null) {
                     SignInChallengeHelper.evaluateNextStep(
                         username = username,
+                        email = event.signInData.metadata[USER_EMAIL].orEmpty(),
                         challengeNameType = response.challengeName,
                         session = response.session,
                         challengeParameters = response.challengeParameters,
