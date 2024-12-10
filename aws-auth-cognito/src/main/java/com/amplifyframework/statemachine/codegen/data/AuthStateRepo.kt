@@ -5,6 +5,7 @@ import com.amplifyframework.core.store.EncryptedKeyValueRepository
 import com.amplifyframework.statemachine.codegen.states.AuthState
 import com.amplifyframework.statemachine.codegen.states.AuthenticationState
 import com.amplifyframework.statemachine.codegen.states.AuthorizationState
+import com.amplifyframework.statemachine.codegen.states.SignUpState
 import com.amplifyframework.statemachine.util.LifoMap
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
@@ -94,6 +95,14 @@ internal class AuthStateRepo private constructor(context: Context) {
      */
     fun activeStateKey(): String? {
         return authStateMap.peekKey()
+    }
+
+    fun getDefaultConfiguredState(): AuthState {
+        return AuthState.Configured(
+            authNState = AuthenticationState.SignedOut(SignedOutData()),
+            authZState = AuthorizationState.Configured(),
+            authSignUpState = SignUpState.NotStarted()
+        )
     }
 
     private fun serializeAuthNAndZState(authState: AuthNAndAuthZ): String {
