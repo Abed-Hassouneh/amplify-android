@@ -36,6 +36,10 @@ internal class AuthStateRepo private constructor(context: Context) {
      * @param value The authentication state to store.
      */
     fun put(key: String, value: AuthState) {
+        if (value.isSignedOut) {
+            remove(key)
+            return
+        }
         if (value.hasValidSession) {
             encryptedStore.put(
                 key,
@@ -148,3 +152,7 @@ private val AuthState.hasValidSession: Boolean
     get() = this is AuthState.Configured &&
             this.authNState is AuthenticationState.SignedIn &&
             this.authZState is AuthorizationState.SessionEstablished
+
+private val AuthState.isSignedOut: Boolean
+    get() = this is AuthState.Configured &&
+            this.authNState is AuthenticationState.SignedOut
