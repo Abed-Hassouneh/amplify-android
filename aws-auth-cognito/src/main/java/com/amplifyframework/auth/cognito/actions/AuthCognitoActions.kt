@@ -51,7 +51,7 @@ internal object AuthCognitoActions : AuthActions {
             logger.verbose("$id Starting execution")
             val handleEvent = { credentials: AmplifyCredential ->
                 when (credentials) {
-                    AmplifyCredential.Empty -> AuthorizationEvent(AuthorizationEvent.EventType.Configure)
+                    is AmplifyCredential.Empty -> AuthorizationEvent(AuthorizationEvent.EventType.Configure)
                     else -> AuthorizationEvent(AuthorizationEvent.EventType.CachedCredentialsAvailable(credentials))
                 }
             }

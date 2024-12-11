@@ -31,7 +31,7 @@ internal object CredentialStoreCognitoActions : CredentialStoreActions {
             logger.verbose("$id Starting execution")
             val evt = try {
                 val credentials = legacyCredentialStore.retrieveCredential()
-                if (credentials != AmplifyCredential.Empty) {
+                if (credentials !is AmplifyCredential.Empty) {
                     // migrate credentials
                     credentialStore.saveCredential(credentials)
                     legacyCredentialStore.deleteCredential()
@@ -67,11 +67,15 @@ internal object CredentialStoreCognitoActions : CredentialStoreActions {
             logger.verbose("$id Starting execution")
             val evt = try {
                 when (credentialType) {
-                    is CredentialType.Amplify -> credentialStore.deleteCredential()
+                    is CredentialType.Amplify -> credentialStore.deleteCredential(userId = credentialType.userId)
                     is CredentialType.Device -> credentialStore.deleteDeviceKeyCredential(credentialType.username)
                     CredentialType.ASF -> credentialStore.deleteASFDevice()
                 }
-                CredentialStoreEvent(CredentialStoreEvent.EventType.CompletedOperation(AmplifyCredential.Empty))
+                if (credentialType is CredentialType.Amplify) {
+                    CredentialStoreEvent(CredentialStoreEvent.EventType.CompletedOperation(AmplifyCredential.Empty(credentialType.userId.orEmpty())))
+                } else{
+                    CredentialStoreEvent(CredentialStoreEvent.EventType.CompletedOperation(AmplifyCredential.Empty(null)))
+                }
             } catch (error: CredentialStoreError) {
                 CredentialStoreEvent(CredentialStoreEvent.EventType.ThrowError(error))
             }

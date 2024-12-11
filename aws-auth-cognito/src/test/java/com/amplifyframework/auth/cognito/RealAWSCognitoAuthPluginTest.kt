@@ -177,7 +177,7 @@ class RealAWSCognitoAuthPluginTest {
             authEnvironment,
             authStateMachine,
             logger,
-            userId
+            "userId-testing",
         )
 
         mockkStatic("com.amplifyframework.auth.cognito.AWSCognitoAuthSessionKt")
