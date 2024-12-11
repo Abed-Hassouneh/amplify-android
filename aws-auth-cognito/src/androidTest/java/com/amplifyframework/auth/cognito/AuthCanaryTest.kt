@@ -348,7 +348,7 @@ class AuthCanaryTest {
         val options = AuthSignOutOptions.builder()
             .globalSignOut(true)
             .build()
-        Amplify.Auth.signOut(options) { signOutResult ->
+        Amplify.Auth.signOut(,, options) { signOutResult ->
             when (signOutResult) {
                 is AWSCognitoAuthSignOutResult.CompleteSignOut -> {
                     // Sign Out completed fully and without errors.

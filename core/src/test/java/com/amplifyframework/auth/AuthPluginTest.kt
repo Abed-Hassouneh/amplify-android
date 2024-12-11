@@ -231,7 +231,12 @@ class AuthPluginTest {
         ) {}
         override fun getCurrentUser(onSuccess: Consumer<AuthUser>, onError: Consumer<AuthException>) {}
         override fun signOut(onComplete: Consumer<AuthSignOutResult>) {}
-        override fun signOut(options: AuthSignOutOptions, onComplete: Consumer<AuthSignOutResult>) {}
+        override fun signOut(
+            username: String,
+            userId: String,
+            options: AuthSignOutOptions,
+            onComplete: Consumer<AuthSignOutResult>
+        ) {}
         override fun deleteUser(onSuccess: Action, onError: Consumer<AuthException>) {}
         override fun listWebAuthnCredentials(
             onSuccess: Consumer<AuthListWebAuthnCredentialsResult>,

@@ -300,7 +300,12 @@ class AWSCognitoAuthPlugin : AuthPlugin<AWSCognitoAuthService>() {
         queueFacade.handleWebUISignInResponse(intent)
     }
 
-    override fun fetchAuthSession(username: String, userId: String, onSuccess: Consumer<AuthSession>, onError: Consumer<AuthException>) =
+    override fun fetchAuthSession(
+        username: String,
+        userId: String,
+        onSuccess: Consumer<AuthSession>,
+        onError: Consumer<AuthException>
+    ) =
         enqueue(onSuccess, onError) { queueFacade.fetchAuthSession(username, userId) }
 
     override fun fetchAuthSession(
@@ -415,15 +420,23 @@ class AWSCognitoAuthPlugin : AuthPlugin<AWSCognitoAuthService>() {
     override fun getCurrentUser(onSuccess: Consumer<AuthUser>, onError: Consumer<AuthException>) =
         enqueue(onSuccess, onError) { queueFacade.getCurrentUser() }
 
-    override fun signOut(onComplete: Consumer<AuthSignOutResult>) = enqueue(
+    override fun signOut(
+        username: String,
+        userId: String, onComplete: Consumer<AuthSignOutResult>
+    ) = enqueue(
         onComplete,
         onError = ::throwIt
-    ) { queueFacade.signOut() }
+    ) { queueFacade.signOut(username, userId) }
 
-    override fun signOut(options: AuthSignOutOptions, onComplete: Consumer<AuthSignOutResult>) = enqueue(
+    override fun signOut(
+        username: String,
+        userId: String,
+        options: AuthSignOutOptions,
+        onComplete: Consumer<AuthSignOutResult>
+    ) = enqueue(
         onComplete,
         onError = ::throwIt
-    ) { queueFacade.signOut(options) }
+    ) { queueFacade.signOut(username, userId, options) }
 
     override fun deleteUser(onSuccess: Action, onError: Consumer<AuthException>) = enqueue(onSuccess, onError) {
         queueFacade.deleteUser()
@@ -536,8 +549,8 @@ class AWSCognitoAuthPlugin : AuthPlugin<AWSCognitoAuthService>() {
      * @param onSuccess Success callback
      * @param onError Error callback
      */
-    fun clearFederationToIdentityPool(onSuccess: Action, onError: Consumer<AuthException>) =
-        enqueue(onSuccess, onError) { queueFacade.clearFederationToIdentityPool() }
+    fun clearFederationToIdentityPool(username:String, userId: String, onSuccess: Action, onError: Consumer<AuthException>) =
+        enqueue(onSuccess, onError) { queueFacade.clearFederationToIdentityPool(username,userId) }
 
     fun fetchMFAPreference(onSuccess: Consumer<UserMFAPreference>, onError: Consumer<AuthException>) =
         enqueue(onSuccess, onError) { queueFacade.fetchMFAPreference() }

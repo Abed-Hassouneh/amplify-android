@@ -595,7 +595,7 @@ public final class SynchronousAuth {
      */
     public void signOut(AuthSignOutOptions options) throws AuthException {
         Await.<Object, AuthException>result(AUTH_OPERATION_TIMEOUT_MS, (onResult, onError) ->
-                asyncDelegate.signOut(options, onResult::accept)
+                asyncDelegate.signOut(, , options, onResult::accept)
         );
     }
 

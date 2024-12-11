@@ -132,7 +132,7 @@ internal class AWSCognitoLegacyCredentialStore(
                 AmplifyCredential.UserPool(signedInData)
             }
 
-            else -> AmplifyCredential.Empty
+            else -> AmplifyCredential.Empty(userId.orEmpty())
         }
     }
 

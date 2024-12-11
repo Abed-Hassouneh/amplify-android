@@ -99,9 +99,9 @@ internal object FetchAuthSessionCognitoActions : FetchAuthSessionActions {
                 }
             } catch (notAuthorized: aws.sdk.kotlin.services.cognitoidentityprovider.model.NotAuthorizedException) {
                 val error = SessionExpiredException(cause = notAuthorized)
-                AuthorizationEvent(AuthorizationEvent.EventType.ThrowError(error))
+                AuthorizationEvent(AuthorizationEvent.EventType.ThrowError(signedInData.userId, error))
             } catch (e: Exception) {
-                AuthorizationEvent(AuthorizationEvent.EventType.ThrowError(e))
+                AuthorizationEvent(AuthorizationEvent.EventType.ThrowError(signedInData.userId, e))
             }
             logger.verbose("$id Sending event ${evt.type}")
             dispatcher.send(evt, signedInData.username)
@@ -134,9 +134,9 @@ internal object FetchAuthSessionCognitoActions : FetchAuthSessionActions {
                     recoverySuggestion = SignedOutException.RECOVERY_SUGGESTION_GUEST_ACCESS_DISABLED,
                     cause = notAuthorized
                 )
-                AuthorizationEvent(AuthorizationEvent.EventType.ThrowError(exception))
+                AuthorizationEvent(AuthorizationEvent.EventType.ThrowError(null, exception))
             } catch (e: Exception) {
-                AuthorizationEvent(AuthorizationEvent.EventType.ThrowError(e))
+                AuthorizationEvent(AuthorizationEvent.EventType.ThrowError(null, e))
             }
             logger.verbose("$id Sending event ${evt.type}")
             dispatcher.send(evt)
@@ -167,9 +167,9 @@ internal object FetchAuthSessionCognitoActions : FetchAuthSessionActions {
                     recoverySuggestion = SignedOutException.RECOVERY_SUGGESTION_GUEST_ACCESS_DISABLED,
                     cause = notAuthorized
                 )
-                AuthorizationEvent(AuthorizationEvent.EventType.ThrowError(exception))
+                AuthorizationEvent(AuthorizationEvent.EventType.ThrowError(null, exception))
             } catch (e: Exception) {
-                AuthorizationEvent(AuthorizationEvent.EventType.ThrowError(e))
+                AuthorizationEvent(AuthorizationEvent.EventType.ThrowError(null, e))
             }
             logger.verbose("$id Sending event ${evt.type}")
             dispatcher.send(evt)

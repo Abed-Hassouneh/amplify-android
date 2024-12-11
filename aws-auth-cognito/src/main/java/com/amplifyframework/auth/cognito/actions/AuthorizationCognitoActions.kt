@@ -40,13 +40,14 @@ internal object AuthorizationCognitoActions : AuthorizationActions {
         dispatcher.send(evt)
     }
 
-    override fun initializeFetchUnAuthSession() =
+    override fun initializeFetchUnAuthSession(userId: String) =
         Action<AuthEnvironment>("InitFetchUnAuthSession") { id, dispatcher ->
             logger.verbose("$id Starting execution")
             val evt = configuration.identityPool?.poolId?.let {
                 FetchAuthSessionEvent(FetchAuthSessionEvent.EventType.FetchIdentity(LoginsMapProvider.UnAuthLogins()))
             } ?: AuthorizationEvent(
                 AuthorizationEvent.EventType.ThrowError(
+                    userId,
                     ConfigurationException(
                         "Identity Pool not configured.",
                         "Please check amplifyconfiguration.json file."
@@ -63,6 +64,7 @@ internal object AuthorizationCognitoActions : AuthorizationActions {
             val evt = when {
                 configuration.userPool?.poolId == null -> AuthorizationEvent(
                     AuthorizationEvent.EventType.ThrowError(
+                        signedInData.userId,
                         ConfigurationException(
                             "User Pool not configured.",
                             "Please check amplifyconfiguration.json file."
@@ -72,6 +74,7 @@ internal object AuthorizationCognitoActions : AuthorizationActions {
 
                 configuration.identityPool?.poolId == null -> AuthorizationEvent(
                     AuthorizationEvent.EventType.ThrowError(
+                        signedInData.userId,
                         ConfigurationException(
                             "Identity Pool not configured.",
                             "Please check amplifyconfiguration.json file."
@@ -81,6 +84,7 @@ internal object AuthorizationCognitoActions : AuthorizationActions {
 
                 signedInData.cognitoUserPoolTokens.idToken == null -> AuthorizationEvent(
                     AuthorizationEvent.EventType.ThrowError(
+                        signedInData.userId,
                         ConfigurationException(
                             "Identity token is null.",
                             AmplifyException.TODO_RECOVERY_SUGGESTION
@@ -98,10 +102,10 @@ internal object AuthorizationCognitoActions : AuthorizationActions {
                 }
             }
             logger.verbose("$id Sending event ${evt.type}")
-            dispatcher.send(evt,  signedInData.email)
+            dispatcher.send(evt, signedInData.email.orEmpty())
         }
 
-    override fun initiateRefreshSessionAction(amplifyCredential: AmplifyCredential) =
+    override fun initiateRefreshSessionAction(userId: String, amplifyCredential: AmplifyCredential) =
         Action<AuthEnvironment>("InitiateRefreshSession") { id, dispatcher ->
             logger.verbose("$id Starting execution")
             val evt = when (amplifyCredential) {
@@ -119,13 +123,14 @@ internal object AuthorizationCognitoActions : AuthorizationActions {
                 is AmplifyCredential.IdentityPoolFederated -> {
                     AuthorizationEvent(
                         AuthorizationEvent.EventType.ThrowError(
+                            userId,
                             Exception("Refreshing credentials from federationToIdentityPool is not supported.")
                         )
                     )
                 }
 
                 else -> AuthorizationEvent(
-                    AuthorizationEvent.EventType.ThrowError(Exception("Credentials empty, cannot refresh."))
+                    AuthorizationEvent.EventType.ThrowError(userId, Exception("Credentials empty, cannot refresh."))
                 )
             }
             logger.verbose("$id Sending event ${evt.type}")
@@ -179,6 +184,6 @@ internal object AuthorizationCognitoActions : AuthorizationActions {
                 is AmplifyCredential.UserPoolTypeCredential -> amplifyCredential.signedInData.email//username
                 else -> ""
             }
-            dispatcher.send(evt, username)
+            dispatcher.send(evt, username.orEmpty())
         }
 }

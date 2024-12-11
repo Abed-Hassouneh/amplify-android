@@ -27,7 +27,7 @@ internal data class SignedInData(
     val signedInDate: Date,
     val signInMethod: SignInMethod,
     val cognitoUserPoolTokens: CognitoUserPoolTokens,
-    val email: String
+    val email: String? = null
 ) {
     override fun equals(other: Any?): Boolean {
         return if (super.equals(other)) {

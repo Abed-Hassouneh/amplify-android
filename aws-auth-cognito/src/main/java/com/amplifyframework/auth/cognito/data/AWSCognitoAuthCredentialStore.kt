@@ -43,10 +43,9 @@ internal class AWSCognitoAuthCredentialStore(
 
     //region Save Credentials
     override fun saveCredential(credential: AmplifyCredential) {
-        var sessionKey: String? = null
-        if (credential is AmplifyCredential.UserPool) {
-            sessionKey = generateKeyWithPrefix(credential.signedInData.userId + "_", Key_Session)
-        }
+        val userId =
+            if (credential is AmplifyCredential.UserPool) credential.signedInData.userId else if (credential is AmplifyCredential.IdentityPool) credential.identityId else null
+        val sessionKey = userId?.let { generateKeyWithPrefix(it + "_", Key_Session) }
         keyValue.put(
             sessionKey ?: generateKey(Key_Session),
             serializeCredential(credential)
@@ -67,8 +66,8 @@ internal class AWSCognitoAuthCredentialStore(
     //region Retrieve Credentials
     override fun retrieveCredential(userId: String?): AmplifyCredential {
         return userId?.let {
-            deserializeCredential(keyValue.get(generateKeyWithPrefix(it + "_", Key_Session)))
-        } ?: deserializeCredential(keyValue.get(generateKey(Key_Session)))
+            deserializeCredential(userId, keyValue.get(generateKeyWithPrefix(it + "_", Key_Session)))
+        } ?: deserializeCredential(null, keyValue.get(generateKey(Key_Session)))
     }
 
     override fun retrieveDeviceMetadata(username: String): DeviceMetadata = deserializeMetadata(
@@ -110,12 +109,12 @@ internal class AWSCognitoAuthCredentialStore(
     private fun generateKeyWithPrefix(prefix: String, keySuffix: String) = prefix + generateKey(keySuffix)
 
     //region Deserialization
-    private fun deserializeCredential(encodedCredential: String?): AmplifyCredential {
+    private fun deserializeCredential(userId: String?, encodedCredential: String?): AmplifyCredential {
         return try {
             val credentials = encodedCredential?.let { Json.decodeFromString(it) as AmplifyCredential }
-            credentials ?: AmplifyCredential.Empty
+            credentials ?: AmplifyCredential.Empty(userId)
         } catch (e: Exception) {
-            AmplifyCredential.Empty
+            AmplifyCredential.Empty(userId)
         }
     }
 
