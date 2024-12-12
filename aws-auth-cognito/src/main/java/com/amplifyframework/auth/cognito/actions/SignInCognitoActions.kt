@@ -113,7 +113,7 @@ internal object SignInCognitoActions : SignInActions {
                 SignInChallengeEvent.EventType.WaitForAnswer(event.challenge, event.signInMethod, true)
             )
             logger.verbose("$id Sending event ${evt.type}")
-            dispatcher.send(evt, event.challenge.username.orEmpty())
+            dispatcher.send(evt)
         }
 
     override fun confirmDevice(event: SignInEvent.EventType.ConfirmDevice): Action =
@@ -175,7 +175,7 @@ internal object SignInCognitoActions : SignInActions {
                 )
             )
             logger.verbose("$id Sending event ${evt.type}")
-            dispatcher.send(evt, event.signInTOTPSetupData.username)
+            dispatcher.send(evt)
         }
 
     override fun initiateWebAuthnSignInAction(event: SignInEvent.EventType.InitiateWebAuthnSignIn) =
