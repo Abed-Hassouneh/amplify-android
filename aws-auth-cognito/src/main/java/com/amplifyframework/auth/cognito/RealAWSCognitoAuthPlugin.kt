@@ -1024,7 +1024,7 @@ internal class RealAWSCognitoAuthPlugin(
                                 session = session
                             )
                             val event = SignInEvent(SignInEvent.EventType.InitiateWebAuthnSignIn(signInContext))
-                            authStateMachine.send(event, username)
+                            authStateMachine.send(event)
                         } else if (challengeState is SignInChallengeState.WaitingForAnswer &&
                             challengeState.challenge.challengeNameType == ChallengeNameType.SelectChallenge &&
                             challengeResponse == ChallengeNameType.Password.value
@@ -1040,7 +1040,7 @@ internal class RealAWSCognitoAuthPlugin(
                                     signInMethod = challengeState.signInMethod
                                 )
                             )
-                            authStateMachine.send(event, challengeState.challenge.username.orEmpty())
+                            authStateMachine.send(event)
                         } else if (challengeState is SignInChallengeState.WaitingForAnswer &&
                             challengeState.challenge.challengeNameType == ChallengeNameType.SelectChallenge &&
                             challengeResponse == ChallengeNameType.PasswordSrp.value
@@ -1056,7 +1056,7 @@ internal class RealAWSCognitoAuthPlugin(
                                     signInMethod = challengeState.signInMethod
                                 )
                             )
-                            authStateMachine.send(event, challengeState.challenge.username.orEmpty())
+                            authStateMachine.send(event)
                         } else if (challengeState is SignInChallengeState.WaitingForAnswer &&
                             challengeState.challenge.challengeNameType == ChallengeNameType.Password
                         ) {
@@ -1074,7 +1074,7 @@ internal class RealAWSCognitoAuthPlugin(
                                     )
                                 )
                             )
-                            authStateMachine.send(event, challengeState.challenge.username)
+                            authStateMachine.send(event)
                         } else if (challengeState is SignInChallengeState.WaitingForAnswer &&
                             challengeState.challenge.challengeNameType == ChallengeNameType.PasswordSrp
                         ) {
@@ -1092,7 +1092,7 @@ internal class RealAWSCognitoAuthPlugin(
                                     )
                                 )
                             )
-                            authStateMachine.send(event, challengeState.challenge.username)
+                            authStateMachine.send(event)
                         } else {
                             val event = SignInChallengeEvent(
                                 SignInChallengeEvent.EventType.VerifyChallengeAnswer(
@@ -1120,7 +1120,7 @@ internal class RealAWSCognitoAuthPlugin(
                                         setupTOTPState.signInMethod
                                     )
                                 )
-                                authStateMachine.send(event, setupTOTPState.signInTOTPSetupData.username)
+                                authStateMachine.send(event)
                             }
 
                             is SetupTOTPState.Error -> {
@@ -1140,7 +1140,7 @@ internal class RealAWSCognitoAuthPlugin(
                                         signInMethod
                                     )
                                 )
-                                authStateMachine.send(event, username)
+                                authStateMachine.send(event)
                             }
 
                             else -> {
