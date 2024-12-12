@@ -153,7 +153,7 @@ internal object SignInCognitoActions : SignInActions {
                 SignInEvent(SignInEvent.EventType.ThrowError(e))
             }
             logger.verbose("$id Sending event ${evt.type}")
-            dispatcher.send(evt, event.signedInData.username)
+            dispatcher.send(evt, event.signedInData.email.orEmpty())
         }
 
     override fun startHostedUIAuthAction(event: SignInEvent.EventType.InitiateHostedUISignIn) =
