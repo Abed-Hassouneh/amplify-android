@@ -135,7 +135,7 @@ internal object AuthorizationCognitoActions : AuthorizationActions {
             }
             logger.verbose("$id Sending event ${evt.type}")
             val username = when (amplifyCredential) {
-                is AmplifyCredential.UserPoolTypeCredential -> amplifyCredential.signedInData.username
+                is AmplifyCredential.UserPoolTypeCredential -> amplifyCredential.signedInData.email.orEmpty()
                 else -> ""
             }
             dispatcher.send(evt, username)
@@ -181,9 +181,9 @@ internal object AuthorizationCognitoActions : AuthorizationActions {
             }
             logger.verbose("$id Sending event ${evt.type}")
             val username = when (amplifyCredential) {
-                is AmplifyCredential.UserPoolTypeCredential -> amplifyCredential.signedInData.email//username
+                is AmplifyCredential.UserPoolTypeCredential -> amplifyCredential.signedInData.email.orEmpty()
                 else -> ""
             }
-            dispatcher.send(evt, username.orEmpty())
+            dispatcher.send(evt, username)
         }
 }
