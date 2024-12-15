@@ -32,6 +32,11 @@ public final class AuthSignInResult {
     private final String userId;
 
     /**
+     * The email of the signed in user.
+     */
+    private final String username;
+
+    /**
      * Wraps the result of a sign up operation.
      *
      * @param isSignedIn True if the user is successfully authenticated, False otherwise. Check
@@ -43,6 +48,7 @@ public final class AuthSignInResult {
         this.isSignedIn = isSignedIn;
         this.nextStep = Objects.requireNonNull(nextStep);
         this.userId = null;
+        this.username = null;
     }
 
     /**
@@ -51,12 +57,14 @@ public final class AuthSignInResult {
      * @param isSignedIn True if the user is successfully authenticated, False otherwise. Check
      *                   {@link #getNextStep()} to see if there are any required or optional steps to still
      *                   be taken in the sign in flow.
+     * @param username   The username of the signed in user if the user is successfully authenticated or null otherwise.
      * @param userId     The user ID of the signed in user if the user is successfully authenticated or null otherwise.
      * @param nextStep   Details about the next step in the sign in process (or whether the flow is now done).
      */
-    public AuthSignInResult(boolean isSignedIn, String userId, @NonNull AuthNextSignInStep nextStep) {
+    public AuthSignInResult(boolean isSignedIn, String username, String userId, @NonNull AuthNextSignInStep nextStep) {
         this.isSignedIn = isSignedIn;
         this.nextStep = Objects.requireNonNull(nextStep);
+        this.username = username;
         this.userId = userId;
     }
 
@@ -81,9 +89,24 @@ public final class AuthSignInResult {
         return nextStep;
     }
 
+    /**
+     * Returns the user ID of the signed in user if the user is successfully authenticated or null otherwise.
+     *
+     * @return the user ID of the signed in user if the user is successfully authenticated or null otherwise
+     */
     @Nullable
     public String getUserId() {
         return userId;
+    }
+
+    /**
+     * Returns the username of the signed in user if the user is successfully authenticated or null otherwise.
+     *
+     * @return the username of the signed in user if the user is successfully authenticated or null otherwise
+     */
+    @Nullable
+    public String getUsername() {
+        return username;
     }
 
     /**
@@ -115,7 +138,8 @@ public final class AuthSignInResult {
             AuthSignInResult authSignUpResult = (AuthSignInResult) obj;
             return ObjectsCompat.equals(isSignedIn(), authSignUpResult.isSignedIn()) &&
                     ObjectsCompat.equals(getNextStep(), authSignUpResult.getNextStep())
-                    && ObjectsCompat.equals(getUserId(), authSignUpResult.getUserId());
+                    && ObjectsCompat.equals(getUserId(), authSignUpResult.getUserId())
+                    && ObjectsCompat.equals(getUsername(), authSignUpResult.getUsername());
         }
     }
 
@@ -124,11 +148,13 @@ public final class AuthSignInResult {
      *
      * @return A string representation of the object
      */
+    @NonNull
     @Override
     public String toString() {
         return "AuthSignInResult{" +
                 "isSignedIn=" + isSignedIn() +
                 ", nextStep=" + getNextStep() +
+                ", username=" + getUsername() +
                 ", userId=" + getUserId() +
                 '}';
     }
