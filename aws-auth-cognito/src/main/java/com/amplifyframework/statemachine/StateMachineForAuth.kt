@@ -131,12 +131,12 @@ internal open class StateMachineForAuth(
      */
     fun getCurrentState(completion: (AuthState) -> Unit) {
         stateMachineScope.launch {
-            completion(authStateRepo.activeState() ?: resolver.defaultState)
+            completion(authStateRepo.activeState() ?: getAuthStateForUser(null))
         }
     }
 
     suspend fun getCurrentState() =
-        withContext(stateMachineContext) { authStateRepo.activeState() ?: resolver.defaultState }
+        withContext(stateMachineContext) { authStateRepo.activeState() ?: getAuthStateForUser(null) }
 
     /**
      * Register a listener.
