@@ -69,7 +69,7 @@ internal object HostedUICognitoActions : HostedUIActions {
                 )
                 val tokenFetchedEvent = HostedUIEvent(HostedUIEvent.EventType.TokenFetched)
                 logger.verbose("$id Sending event ${tokenFetchedEvent.type}")
-                dispatcher.send(tokenFetchedEvent, username)
+                dispatcher.send(tokenFetchedEvent, username, ignoreUsername = true)
 
                 AuthenticationEvent(AuthenticationEvent.EventType.SignInCompleted(signedInData, DeviceMetadata.Empty))
             } catch (e: Exception) {

@@ -1361,7 +1361,7 @@ internal class RealAWSCognitoAuthPlugin(
                         ) {
                             authStateMachine.send(
                                 SignOutEvent(SignOutEvent.EventType.UserCancelled(signOutState.signedInData)),
-                                signOutState.signedInData.username
+                                signOutState.signedInData.email.orEmpty()
                             )
                         } else {
                             val hostedUIErrorData = if (callbackUri == null) {
@@ -1378,21 +1378,21 @@ internal class RealAWSCognitoAuthPlugin(
                                 authStateMachine.send(
                                     SignOutEvent(
                                         SignOutEvent.EventType.SignOutGlobally(
-                                            "user-id", // TODO: sign in using web - ui / social & sso
+                                            signOutState.signedInData.userId,
                                             signOutState.signedInData,
                                             hostedUIErrorData
                                         )
-                                    ), signOutState.signedInData.username
+                                    ), signOutState.signedInData.email.orEmpty()
                                 )
                             } else {
                                 authStateMachine.send(
                                     SignOutEvent(
                                         SignOutEvent.EventType.RevokeToken(
-                                            "user-id", // TODO: sign in using web - ui / social & sso
+                                            signOutState.signedInData.userId,
                                             signOutState.signedInData,
                                             hostedUIErrorData
                                         )
-                                    ), signOutState.signedInData.username
+                                    ), signOutState.signedInData.email.orEmpty()
                                 )
                             }
                         }

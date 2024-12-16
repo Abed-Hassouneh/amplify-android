@@ -44,8 +44,8 @@ internal open class StateMachineForAuth(
     private val _state = MutableStateFlow(initialState ?: resolver.defaultState)
     val state = _state.asStateFlow()
 
-    private fun getAuthStateForUser(username: String?): AuthState {
-        if (username.isNullOrEmpty()) {
+    private fun getAuthStateForUser(username: String?, ignoreUsername: Boolean = false): AuthState {
+        if (username.isNullOrEmpty() || ignoreUsername) {
             return _state.value
         }
         return authStateRepo.get(username) ?: authStateRepo.getDefaultConfiguredState()
@@ -178,9 +178,9 @@ internal open class StateMachineForAuth(
         }
     }
 
-    override fun send(event: StateMachineEvent, username: String) {
+    override fun send(event: StateMachineEvent, username: String, ignoreUsername: Boolean) {
         stateMachineScope.launch {
-            process(username, event)
+            process(username, event, ignoreUsername)
         }
     }
 
@@ -207,8 +207,8 @@ internal open class StateMachineForAuth(
      * the state machine will execute any effects from the event resolution process.
      * @param event event to apply on current state for resolution
      */
-    private fun process(username: String, event: StateMachineEvent) {
-        val currentState = getAuthStateForUser(username)
+    private fun process(username: String, event: StateMachineEvent, ignoreUsername: Boolean = false) {
+        val currentState = getAuthStateForUser(username, ignoreUsername)
         val resolution = resolver.resolve(currentState, event)
         if (currentState != resolution.newState) {
             setAuthState(username, resolution.newState)
