@@ -40,7 +40,7 @@ internal class AuthStateRepo private constructor(context: Context) {
             remove(key)
             return
         }
-        if (value.hasValidSession) {
+        if (value.isSessionEstablished) {
             encryptedStore.put(
                 key,
                 serializeAuthNAndZState(
@@ -50,6 +50,10 @@ internal class AuthStateRepo private constructor(context: Context) {
                     )
                 )
             )
+            // Remove all states from the in-memory map.
+            // This enables us to login again with different credentials.
+            authStateMap.clear()
+            return
         }
         authStateMap.push(key, value)
     }
@@ -148,7 +152,7 @@ private data class AuthNAndAuthZ(
     val authZState: AuthorizationState.SessionEstablished
 )
 
-private val AuthState.hasValidSession: Boolean
+internal val AuthState.isSessionEstablished: Boolean
     get() = this is AuthState.Configured &&
             this.authNState is AuthenticationState.SignedIn &&
             this.authZState is AuthorizationState.SessionEstablished

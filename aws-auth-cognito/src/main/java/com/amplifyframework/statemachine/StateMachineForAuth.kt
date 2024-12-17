@@ -2,6 +2,7 @@ package com.amplifyframework.statemachine
 
 import com.amplifyframework.auth.cognito.AuthEnvironment
 import com.amplifyframework.statemachine.codegen.data.AuthStateRepo
+import com.amplifyframework.statemachine.codegen.data.isSessionEstablished
 import com.amplifyframework.statemachine.codegen.states.AuthState
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -55,7 +56,9 @@ internal open class StateMachineForAuth(
         if (userName.isNotEmpty()) {
             authStateRepo.put(userName, value)
         }
-        _state.value = value
+        // Reset state to the default configured state if session is established.
+        // so we can login again with different credentials.
+        _state.value = if (value.isSessionEstablished) authStateRepo.getDefaultConfiguredState() else value
     }
 
     // Manage consistency of internal state machine state and limits invocation of listeners to a minimum of one at a time.

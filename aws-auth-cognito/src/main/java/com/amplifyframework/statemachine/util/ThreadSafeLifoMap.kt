@@ -101,6 +101,13 @@ class LifoMap<K, V>(private val maxSize: Int? = null) {
     fun size(): Int = map.size
 
     /**
+     * Removes all key-value pairs from the map.
+     */
+    fun clear() {
+        map.clear()
+    }
+
+    /**
      * Returns a string representation of the map.
      *
      * @return A string representation of the map in insertion order.
