@@ -70,9 +70,6 @@ internal class AuthStateRepo private constructor(context: Context) {
         } else {
             deserializeAuthNAndZState(encryptedStore.get(key))?.let {
                 AuthState.Configured(it.authNState, it.authZState, null)
-            }.also {
-                // If the state is found in the encrypted store, push it to the in-memory map.
-                it?.let { authStateMap.push(key, it) }
             }
         }
     }
